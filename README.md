@@ -1,5 +1,5 @@
 # Lightix
-Linux distribution for easy everyone.
+Linux distribution easy for everyone.
 
 # Warning
 This distribution is still under development.  
