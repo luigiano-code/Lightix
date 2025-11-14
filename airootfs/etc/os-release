@@ -1,0 +1,9 @@
+NAME="Lightix"
+PRETTY_NAME="Lightix"
+ID=lightix
+ID_LIKE=arch
+BUILD_ID=rolling
+VERSION_ID="1.0"
+ANSI_COLOR="38;2;23;147;209"
+HOME_URL="https://github.com/luigiano-code/Lightix"
+LOGO=archlinux-logo

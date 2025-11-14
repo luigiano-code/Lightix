@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="accent-color-icon-theme-extension">
+    <schema id="org.gnome.shell.extensions.accent-directories"
+            path="/org/gnome/shell/extensions/accent-directories/">
+        <key type="b" name="change-app-colors">
+            <default>true</default>
+            <summary>Whether to change app icons based on accent color</summary>
+            <description>Enables or disables changing app icons based on accent color</description>
+        </key>
+        
+        <!-- Add keys for custom themes -->
+        <key type="s" name="blue-theme">
+            <default>"Adwaita-Blue-Default"</default>
+            <summary>Custom icon theme for blue accent</summary>
+        </key>
+        <key type="s" name="teal-theme">
+            <default>"Adwaita-Teal"</default>
+            <summary>Custom icon theme for teal accent</summary>
+        </key>
+        <key type="s" name="green-theme">
+            <default>"Adwaita-Green"</default>
+            <summary>Custom icon theme for green accent</summary>
+        </key>
+        <key type="s" name="yellow-theme">
+            <default>"Adwaita-Yellow"</default>
+            <summary>Custom icon theme for yellow accent</summary>
+        </key>
+        <key type="s" name="orange-theme">
+            <default>"Adwaita-Orange"</default>
+            <summary>Custom icon theme for orange accent</summary>
+        </key>
+        <key type="s" name="red-theme">
+            <default>"Adwaita-Red"</default>
+            <summary>Custom icon theme for red accent</summary>
+        </key>
+        <key type="s" name="pink-theme">
+            <default>"Adwaita-Pink"</default>
+            <summary>Custom icon theme for pink accent</summary>
+        </key>
+        <key type="s" name="purple-theme">
+            <default>"Adwaita-Purple"</default>
+            <summary>Custom icon theme for purple accent</summary>
+        </key>
+        <key type="s" name="slate-theme">
+            <default>"Adwaita-Slate"</default>
+            <summary>Custom icon theme for slate accent</summary>
+        </key>
+    </schema>
+</schemalist>
