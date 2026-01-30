@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-iso_name="Lightix"
-iso_label="lightix"
-iso_publisher="luigiano-code <https://github.com/luigiano-code/Lightix>"
-iso_application="Lightix"
-iso_version="0.1"
+iso_name="YavixOs"
+iso_label="Yavix"
+iso_publisher="luigiano-code <https://github.com/luigiano-code/YavixOs>"
+iso_application="YavixOs"
+iso_version="0_1"
 install_dir="arch"
 buildmodes=('iso')
 bootmodes=('bios.syslinux.mbr' 'bios.syslinux.eltorito'

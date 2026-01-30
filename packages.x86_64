@@ -128,6 +128,7 @@ xl2tpd
 zsh
 
 base-devel
+plymouth
 
 gdm
 gnome-terminal
@@ -175,4 +176,3 @@ yasm
 zip
 mime-types
 dbus-glib
-zen-browser-bin

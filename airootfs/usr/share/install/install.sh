@@ -33,13 +33,16 @@ mount --bind /proc "$MNT/proc"
 mount --bind /sys "$MNT/sys"
 mount --bind /run "$MNT/run"
 
-genfstab /mnt -u >> /mnt/etc/fstab
-
-cp -rf /usr/share/boot/ /mnt/boot
+genfstab /mnt -U > /mnt/etc/fstab
 
 arch-chroot "$MNT" /bin/bash <<'EOF'
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=MYOS
-mkinitcpio -P
+mv /etc/mkinitcpio.d/linux.preset /etc/mkinitcpio.d/linux.preset.bak
+mv /etc/mkinitcpio.d/installedlinux.preset /etc/mkinitcpio.d/linux.preset
+cp /etc/mkinitcpio.conf /etc/mkinitcpio.conf.d/mkinitcpio.conf
+rm -f /etc/mkinitcpio.conf.d/archiso.conf
+pacman -Sy linux linux-headers --noconfirm
+mkinitcpio -c /etc/mkinitcpio.conf -g /boot/initramfs-linux.img
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=YAVIX
 grub-mkconfig -o /boot/grub/grub.cfg
 EOF
 
