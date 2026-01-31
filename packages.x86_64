@@ -159,20 +159,5 @@ meson
 libxml2
 extension-manager
 
-pnpm
-rsync
-cbindgen
-imake
-lld
-llvm
-nasm
-nodejs
-rust
-wasi-compiler-rt
-wasi-libc
-wasi-libc++
-wasi-libc++abi
-yasm
-zip
-mime-types
-dbus-glib
+gparted
+firefox
