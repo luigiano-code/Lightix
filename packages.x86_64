@@ -156,5 +156,7 @@ meson
 libxml2
 extension-manager
 
+yavix-installer
+
 gparted
 firefox
