@@ -26,7 +26,7 @@ foot-terminfo
 gpart
 gpm
 gptfdisk
-grml-zsh-config
+# grml-zsh-config
 grub
 hdparm
 intel-ucode
