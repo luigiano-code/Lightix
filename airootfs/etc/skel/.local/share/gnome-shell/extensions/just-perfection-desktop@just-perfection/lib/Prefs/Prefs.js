@@ -2,7 +2,7 @@
  * Prefs Library
  *
  * @author     Javad Rahmatzadeh <j.rahmatzadeh@gmail.com>
- * @copyright  2020-2025
+ * @copyright  2020-2026
  * @license    GPL-3.0-only
  */
 
@@ -21,7 +21,7 @@ export class Prefs
     /**
      * Instance of PrefsKeys
      *
-     * @type {PrefsKeys|null}
+     * @type {import('./PrefsKeys.js').PrefsKeys|null}
      */
     #prefsKeys = null;
 
@@ -54,6 +54,13 @@ export class Prefs
     #resource = null;
 
     /**
+     * Instance of Adw
+     *
+     * @type {Adw|null}
+     */
+    #adw = null;
+
+    /**
      * Instance of Gtk
      *
      * @type {Gtk|null}
@@ -73,6 +80,13 @@ export class Prefs
      * @type {Gio|null}
      */
     #gio = null;
+
+    /**
+     * Instance of GLib
+     *
+     * @type {GLib|null}
+     */
+    #glib = null;
 
     /**
      * All available profile names
@@ -97,7 +111,7 @@ export class Prefs
         ['Bitcoin', 'bc1qn6p0k8sapmxgedn8qjhd5gm2yzy46t5s296lnd'],
         ['Bitcoin Cash', 'qzhuj2kdw4zjrg8r2j7knx5uzqdcpv5lwv5uxq04e0'],
         ['Ethereum', '0xE4A6C46E1095C49688645c132672cB04d1402026'],
-        ['XRP', 'rMvJGGw3eWat3vm7TRjUb5XAtazoSm399R'],
+        ['XRP', 'rEneFYpbFmTB7ejLphTwjsj8ityezR1NeY'],
         ['USDT', '0xE4A6C46E1095C49688645c132672cB04d1402026'],
         ['USDC', '0xE4A6C46E1095C49688645c132672cB04d1402026'],
         ['Solana', '3M9d8arcHiuqAwso9zTX4pvZRoaeVVomkovWmGCYgDG2'],
@@ -114,23 +128,27 @@ export class Prefs
      * class constructor
      *
      * @param {Object} dependencies
-     *   'Builder' instance of Gtk::Builder
-     *   'Settings' instance of Gio::Settings
-     *   'CssProvider': instance of Gtk::CssProvider
+     *   'Builder' instance of Gtk.Builder
+     *   'Settings' instance of Gio.Settings
+     *   'CssProvider': instance of Gtk.CssProvider
+     *   'Adw' reference to Adw
      *   'Gtk' reference to Gtk
      *   'Gdk' reference to Gdk
      *   'Gio' reference to Gio
-     * @param {PrefsKeys.PrefsKeys} prefsKeys instance of PrefsKeys
-     * @param {number} shellVersion float in major.minor format
+     *   'GLib' reference to GLib
+     * @param {PrefsKeys.PrefsKeys} prefsKeys - instance of PrefsKeys
+     * @param {number} shellVersion - float in major.minor format
      */
     constructor(dependencies, prefsKeys, shellVersion)
     {
         this.#settings = dependencies['Settings'] || null;
         this.#builder = dependencies['Builder'] || null;
         this.#cssProvider = dependencies['CssProvider'] || null;
+        this.#adw = dependencies['Adw'] || null;
         this.#gtk = dependencies['Gtk'] || null;
         this.#gdk = dependencies['Gdk'] || null;
         this.#gio = dependencies['Gio'] || null;
+        this.#glib = dependencies['GLib'] || null;
 
         this.#prefsKeys = prefsKeys;
         this.#shellVersion = shellVersion;
@@ -147,17 +165,17 @@ export class Prefs
      */
      fillPrefsWindow(window, ResourcesFolderPath, gettextDomain)
      {
-         // changing the order here can change the elements order in ui 
+         // changing the order here can change the elements order in ui
          let uiFilenames = [
-             'profile',
-             'visibility',
-             'icons',
-             'behavior',
-             'customize',
+             'menu',
+             'pages/profile',
+             'pages/visibility',
+             'pages/behavior',
+             'pages/customize',
          ];
 
          this.#loadResource(ResourcesFolderPath);
-         
+
          this.#cssProvider.load_from_resource(
             `/org/gnome/Shell/Extensions/justperfection/css/prefs.css`
          );
@@ -166,7 +184,7 @@ export class Prefs
             this.#cssProvider,
             this.#gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
          );
- 
+
          this.#builder.set_translation_domain(gettextDomain);
          for (let uiFilename of uiFilenames) {
             this.#builder.add_from_resource(
@@ -175,15 +193,20 @@ export class Prefs
          }
 
          for (let uiFilename of uiFilenames) {
-             let page = this.#builder.get_object(uiFilename);
+             if (!uiFilename.startsWith('pages/')) {
+                 continue;
+             }
+             let page = this.#builder.get_object(uiFilename.replace('pages/', ''));
              window.add(page);
          }
- 
+
+         this.#addMainMenu(window);
          this.#setValues();
          this.#guessProfile();
          this.#onlyShowSupportedRows();
          this.#loadCryptoSupportAddress();
          this.#registerAllSignals(window);
+         this.#registerAllActions(window);
 
          this.#setWindowSize(window);
 
@@ -215,7 +238,7 @@ export class Prefs
         let [pmWidth, pmHeight, pmScale] = this.#getPrimaryMonitorInfo();
         let sizeTolerance = 50;
         let width = 640;
-        let height = 810;
+        let height = 750;
 
         if (
             (pmWidth / pmScale) - sizeTolerance >= width &&
@@ -244,6 +267,88 @@ export class Prefs
         let scale = pm.get_scale_factor();
 
         return [geo.width, geo.height, scale];
+    }
+
+     /**
+      * get header bar widget
+      *
+      * @param {Gtk.Widget} parent the widget that may contain the header bar
+      *
+      * @returns {void}
+      */
+     #getHeaderBar(parent)
+     {
+        const children = parent.observe_children();
+
+        if (!children) {
+            return null;
+        }
+
+        for (let i = 0; i < children.get_n_items(); i++) {
+            const child = children.get_item(i);
+            if (child instanceof this.#adw.HeaderBar) {
+                return child;
+            }
+            const widget = this.#getHeaderBar(child);
+            if (widget) {
+                return widget;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * add main menu to the header bar
+     *
+     * @param {Adw.PreferencesWindow} window prefs dialog
+     *
+     * @returns {void}
+     */
+    #addMainMenu(window)
+    {
+        let headerBar = this.#getHeaderBar(window);
+
+        headerBar?.pack_end(this.#builder.get_object('menu_button'));
+    }
+
+    /**
+     * register all actions
+     *
+     * @param {Adw.PreferencesWindow} window prefs dialog
+     *
+     * @returns {void}
+     */
+    #registerAllActions(window)
+    {
+        this.#registerLinksActions(window);
+    }
+
+    /**
+     * register links action
+     *
+     * @param {Adw.PreferencesWindow} window prefs dialog
+     *
+     * @returns {void}
+     */
+    #registerLinksActions(window)
+    {
+        let group = new this.#gio.SimpleActionGroup();
+        window.insert_action_group('links', group);
+
+        let openUriAction = new this.#gio.SimpleAction({
+            name: 'open-uri',
+            parameter_type: new this.#glib.VariantType('s'),
+        });
+        openUriAction.connect(
+            'activate',
+            (_self, target) => {
+                const uri = target.get_string()[0];
+                this.#gio.AppInfo.launch_default_for_uri(uri, null);
+            }
+        );
+
+        group.add_action(openUriAction);
     }
 
     /**
@@ -299,7 +404,7 @@ export class Prefs
                 case 'AdwActionRow':
                     this.#builder.get_object(key.widgetId).connect('notify::selected-item', (w) => {
                         let index = w.get_selected();
-                        let value = (index in key.maps) ? key.maps[index] : index; 
+                        let value = (index in key.maps) ? key.maps[index] : index;
                         this.#settings.set_int(key.name, value);
                         this.#guessProfile();
                     });
@@ -336,7 +441,7 @@ export class Prefs
 
     /**
      * register crypto support signals
-     * 
+     *
      * @param {Adw.PreferencesWindow} window prefs dialog
      *
      * @returns {void}
@@ -363,7 +468,7 @@ export class Prefs
 
     /**
      * load crypto address into the ui
-     * 
+     *
      * @param {number} index coming from the crypto name combobox
      *
      * @returns {void}
@@ -399,7 +504,7 @@ export class Prefs
         }
 
         for (let [, key] of Object.entries(this.#prefsKeys.keys)) {
-        
+
             if (!key.supported) {
                 continue;
             }
@@ -420,7 +525,7 @@ export class Prefs
                     value = '';
                     continue;
             }
-            
+
             for (let profile of this.#profiles) {
                 if (key.profiles[profile] === value) {
                     matchCount[profile]++;
@@ -437,7 +542,7 @@ export class Prefs
                 break;
             }
         }
-        
+
         let widget = this.#builder.get_object(`profile_${currentProfile}`);
         if (widget) {
             widget.set_active(true);

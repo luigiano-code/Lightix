@@ -91,7 +91,7 @@ In 2017, ArcMenu _started_ as a fork of the Zorin menu extension by Zorin OS. As
 | **German** | **@[Etamuk](https://gitlab.com/Etamuk), @[daPhipz](https://gitlab.com/daPhipz), @[RaceTheMaSe](https://gitlab.com/RaceTheMaSe)**|
 | **Hebrew** | **@[omeritzics](https://gitlab.com/omeritzics)** |
 | **Hungarian** | **@[stevendobay](https://gitlab.com/stevendobay), @[Balázs Meskó](https://gitlab.com/meskobalazs)** |
-| **Italian** | **@[Vombato](https://gitlab.com/Vombato), @[matguidi](https://gitlab.com/matguidi)** |
+| **Italian** | **@[Vombato](https://gitlab.com/Vombato), @[matguidi](https://gitlab.com/matguidi), @[Nicola C.](https://gitlab.com/nico9889)** |
 | **Japanese** | **@[Hayao0819](https://gitlab.com/Hayao0819), @[Umoxfo](https://gitlab.com/Umoxfo)** |
 | **Korean** | **@[HyeonWol](https://gitlab.com/hyeonwol123)** |
 | **Norwegian** | **@[sigbjokj](https://gitlab.com/sigbjokj), @[sssandum](https://gitlab.com/sssandum)** |

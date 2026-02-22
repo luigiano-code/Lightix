@@ -7,6 +7,23 @@ We go to the next version after each release on the
 
 ## [Unreleased]
 
+## [36.0] - 2026-01-26
+
+### Added
+
+- Backlight Toggle Button Visibility in Quick Settings.
+- Do Not Disturb Toggle Button Visibility in Quick Settings by @michael.online.
+- GNOME Shell 50 Support.
+
+### Fixed
+
+- Looking Glass Position on Vertical Panel.
+- On Screen Display (OSD) visibility on GNOME Shell 49.
+
+### Removed
+
+- Icons page from preferences window and moved the items to the visibility page.
+
 ## [35.0] - 2025-08-29
 
 ### Added
@@ -611,4 +628,3 @@ We go to the next version after each release on the
 - Hide top panel.
 - Hide workspace switcher.
 - Hot corner to toggle overview visibility.
-

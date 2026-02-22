@@ -1,20 +1,24 @@
-<b><span size="large">v67.2</span></b>
+<b><span size="large">v68.0</span></b>
 
-- Add new menu layout "Zest".
-- Fix power menu button active state bug.
-- Ensure active menu item is cleared when menu is closed.
-
-<b><span size="large">v67.1</span></b>
-
-- Add GNOME 49 Support.
-- Add hotkey option to toggle overriding the GNOME Overview hotkey when using 'Super' hotkeys for ArcMenu.
-- Fix disposed menu item error when opening pinned apps context menu.
-- Fix pan action scroll bug causing pan to function when started outside of the scrollview.
-
-<b><span size="large">v67.0</span></b>
-
-- Add support for multiple hotkeys for ArcMenu and Standalone Runner.
-- Settings: Increase the maximum value of width options for the menu size.
-- Update Notifier: only show donation option on major releases.
-- Fix bug causing error logs to appear when activating search results with enter key.
-- Fix rare bug causing empty categories if duplicate desktop files contained within the same category.
+- Add option to show/hide scrollbars.
+- Add option to enable/disable overlay scrollbars.
+- Add option to hide GNOME Overview when ArcMenu opens.
+- Add more distro icons.
+- Add DBus method ToggleStandaloneRunner to open/close the standalone runner.
+- App Context Menu
+    - Fix desktop shortcut menu item visibility bug.
+- Pop layout
+    - Make Library Home folder hide automatically when empty
+    - Fix active style pseudo class not persisting on folder items
+    - Fix bugs when dragging to the Home folder, existing folders, or the New Folder
+- Runner layout
+    - Add option to change search bar location.
+    - Add option to toggle Configure Runner button.
+    - Add option to toggle Static Height mode.
+    - Improve spacing/padding consistency.
+- Settings
+    - Reorganize Fine Tune page in settings.
+    - Implement new Icon Chooser dialog for Menu Button and Pinned Apps.
+    - Add Configure Runner button next to Standalone Runner section.
+- Use GResource file to bundle all custom icons.
+- Fix bug causing scrollbars to jump back to the previously selected menu item.

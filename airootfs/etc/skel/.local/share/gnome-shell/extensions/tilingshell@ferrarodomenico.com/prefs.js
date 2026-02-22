@@ -1,785 +1,50 @@
-// src/gi.shared.ts
-import Gio from "gi://Gio";
-import GLib from "gi://GLib";
-import GObject from "gi://GObject";
-
-// src/gi.prefs.ts
-import Gdk from "gi://Gdk";
-import Gtk from "gi://Gtk";
-import Adw from "gi://Adw";
-
-// src/components/layout/Layout.ts
-var Layout = class {
-  id;
-  tiles;
-  constructor(tiles, id) {
-    this.tiles = tiles;
-    this.id = id;
-  }
-};
-
-// src/components/layout/Tile.ts
-var Tile2 = class {
-  static $gtype = GObject.TYPE_JSOBJECT;
-  x;
-  y;
-  width;
-  height;
-  groups;
-  constructor({
-    x,
-    y,
-    width,
-    height,
-    groups
-  }) {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-    this.groups = groups;
-  }
-};
-
-// src/settings/settings.ts
-var ActivationKey = /* @__PURE__ */ ((ActivationKey2) => {
-  ActivationKey2[ActivationKey2["NONE"] = -1] = "NONE";
-  ActivationKey2[ActivationKey2["CTRL"] = 0] = "CTRL";
-  ActivationKey2[ActivationKey2["ALT"] = 1] = "ALT";
-  ActivationKey2[ActivationKey2["SUPER"] = 2] = "SUPER";
-  return ActivationKey2;
-})(ActivationKey || {});
-function get_string(key) {
-  return Settings.gioSetting.get_string(key) ?? Settings.gioSetting.get_default_value(key)?.get_string()[0];
-}
-function set_string(key, val) {
-  return Settings.gioSetting.set_string(key, val);
-}
-function get_boolean(key) {
-  return Settings.gioSetting.get_boolean(key) ?? Settings.gioSetting.get_default_value(key)?.get_boolean();
-}
-function set_boolean(key, val) {
-  return Settings.gioSetting.set_boolean(key, val);
-}
-function get_number(key) {
-  return Settings.gioSetting.get_int(key) ?? Settings.gioSetting.get_default_value(key)?.get_int64();
-}
-function set_number(key, val) {
-  return Settings.gioSetting.set_int(key, val);
-}
-function get_unsigned_number(key) {
-  return Settings.gioSetting.get_uint(key) ?? Settings.gioSetting.get_default_value(key)?.get_uint64();
-}
-function set_unsigned_number(key, val) {
-  return Settings.gioSetting.set_uint(key, val);
-}
-function get_activationkey(key, defaultValue) {
-  let val = Settings.gioSetting.get_strv(key);
-  if (!val || val.length === 0) {
-    val = Settings.gioSetting.get_default_value(key)?.get_strv() ?? [
-      String(defaultValue)
-    ];
-    if (val.length === 0) val = [String(defaultValue)];
-  }
-  return Number(val[0]);
-}
-function set_activationkey(key, val) {
-  return Settings.gioSetting.set_strv(key, [String(val)]);
-}
-var Settings = class _Settings {
-  static _settings;
-  static _is_initialized = false;
-  static KEY_LAST_VERSION_NAME_INSTALLED = "last-version-name-installed";
-  static KEY_OVERRIDDEN_SETTINGS = "overridden-settings";
-  static KEY_WINDOW_BORDER_COLOR = "window-border-color";
-  static KEY_WINDOW_USE_CUSTOM_BORDER_COLOR = "window-use-custom-border-color";
-  static KEY_TILING_SYSTEM = "enable-tiling-system";
-  static KEY_SNAP_ASSIST = "enable-snap-assist";
-  static KEY_SHOW_INDICATOR = "show-indicator";
-  static KEY_TILING_SYSTEM_ACTIVATION_KEY = "tiling-system-activation-key";
-  static KEY_TILING_SYSTEM_DEACTIVATION_KEY = "tiling-system-deactivation-key";
-  static KEY_SPAN_MULTIPLE_TILES_ACTIVATION_KEY = "span-multiple-tiles-activation-key";
-  static KEY_SPAN_MULTIPLE_TILES = "enable-span-multiple-tiles";
-  static KEY_RESTORE_WINDOW_ORIGINAL_SIZE = "restore-window-original-size";
-  static KEY_WRAPAROUND_FOCUS = "enable-wraparound-focus";
-  static KEY_ENABLE_DIRECTIONAL_FOCUS_TILED_ONLY = "enable-directional-focus-tiled-only";
-  static KEY_RESIZE_COMPLEMENTING_WINDOWS = "resize-complementing-windows";
-  static KEY_ENABLE_BLUR_SNAP_ASSISTANT = "enable-blur-snap-assistant";
-  static KEY_ENABLE_BLUR_SELECTED_TILEPREVIEW = "enable-blur-selected-tilepreview";
-  static KEY_ENABLE_MOVE_KEYBINDINGS = "enable-move-keybindings";
-  static KEY_ENABLE_AUTO_TILING = "enable-autotiling";
-  static KEY_ACTIVE_SCREEN_EDGES = "active-screen-edges";
-  static KEY_TOP_EDGE_MAXIMIZE = "top-edge-maximize";
-  static KEY_OVERRIDE_WINDOW_MENU = "override-window-menu";
-  static KEY_OVERRIDE_ALT_TAB = "override-alt-tab";
-  static KEY_SNAP_ASSISTANT_THRESHOLD = "snap-assistant-threshold";
-  static KEY_ENABLE_WINDOW_BORDER = "enable-window-border";
-  static KEY_INNER_GAPS = "inner-gaps";
-  static KEY_OUTER_GAPS = "outer-gaps";
-  static KEY_SNAP_ASSISTANT_ANIMATION_TIME = "snap-assistant-animation-time";
-  static KEY_TILE_PREVIEW_ANIMATION_TIME = "tile-preview-animation-time";
-  static KEY_SETTING_LAYOUTS_JSON = "layouts-json";
-  static KEY_SETTING_SELECTED_LAYOUTS = "selected-layouts";
-  static KEY_WINDOW_BORDER_WIDTH = "window-border-width";
-  static KEY_ENABLE_SMART_WINDOW_BORDER_RADIUS = "enable-smart-window-border-radius";
-  static KEY_QUARTER_TILING_THRESHOLD = "quarter-tiling-threshold";
-  static KEY_EDGE_TILING_OFFSET = "edge-tiling-offset";
-  static KEY_ENABLE_TILING_SYSTEM_WINDOWS_SUGGESTIONS = "enable-tiling-system-windows-suggestions";
-  static KEY_ENABLE_SNAP_ASSISTANT_WINDOWS_SUGGESTIONS = "enable-snap-assistant-windows-suggestions";
-  static KEY_ENABLE_SCREEN_EDGES_WINDOWS_SUGGESTIONS = "enable-screen-edges-windows-suggestions";
-  static SETTING_MOVE_WINDOW_RIGHT = "move-window-right";
-  static SETTING_MOVE_WINDOW_LEFT = "move-window-left";
-  static SETTING_MOVE_WINDOW_UP = "move-window-up";
-  static SETTING_MOVE_WINDOW_DOWN = "move-window-down";
-  static SETTING_SPAN_WINDOW_RIGHT = "span-window-right";
-  static SETTING_SPAN_WINDOW_LEFT = "span-window-left";
-  static SETTING_SPAN_WINDOW_UP = "span-window-up";
-  static SETTING_SPAN_WINDOW_DOWN = "span-window-down";
-  static SETTING_SPAN_WINDOW_ALL_TILES = "span-window-all-tiles";
-  static SETTING_UNTILE_WINDOW = "untile-window";
-  static SETTING_MOVE_WINDOW_CENTER = "move-window-center";
-  static SETTING_FOCUS_WINDOW_RIGHT = "focus-window-right";
-  static SETTING_FOCUS_WINDOW_LEFT = "focus-window-left";
-  static SETTING_FOCUS_WINDOW_UP = "focus-window-up";
-  static SETTING_FOCUS_WINDOW_DOWN = "focus-window-down";
-  static SETTING_FOCUS_WINDOW_NEXT = "focus-window-next";
-  static SETTING_FOCUS_WINDOW_PREV = "focus-window-prev";
-  static SETTING_HIGHLIGHT_CURRENT_WINDOW = "highlight-current-window";
-  static SETTING_CYCLE_LAYOUTS = "cycle-layouts";
-  static initialize(settings) {
-    if (this._is_initialized) return;
-    this._is_initialized = true;
-    this._settings = settings;
-  }
-  static destroy() {
-    if (this._is_initialized) {
-      this._is_initialized = false;
-      this._settings = null;
-    }
-  }
-  static get gioSetting() {
-    return this._settings ?? new Gio.Settings();
-  }
-  static bind(key, object, property, flags = Gio.SettingsBindFlags.DEFAULT) {
-    this._settings?.bind(key, object, property, flags);
-  }
-  static get LAST_VERSION_NAME_INSTALLED() {
-    return get_string(_Settings.KEY_LAST_VERSION_NAME_INSTALLED);
-  }
-  static set LAST_VERSION_NAME_INSTALLED(val) {
-    set_string(_Settings.KEY_LAST_VERSION_NAME_INSTALLED, val);
-  }
-  static get OVERRIDDEN_SETTINGS() {
-    return get_string(_Settings.KEY_OVERRIDDEN_SETTINGS);
-  }
-  static set OVERRIDDEN_SETTINGS(val) {
-    set_string(_Settings.KEY_OVERRIDDEN_SETTINGS, val);
-  }
-  static get TILING_SYSTEM() {
-    return get_boolean(_Settings.KEY_TILING_SYSTEM);
-  }
-  static set TILING_SYSTEM(val) {
-    set_boolean(_Settings.KEY_TILING_SYSTEM, val);
-  }
-  static get SNAP_ASSIST() {
-    return get_boolean(_Settings.KEY_SNAP_ASSIST);
-  }
-  static set SNAP_ASSIST(val) {
-    set_boolean(_Settings.KEY_SNAP_ASSIST, val);
-  }
-  static get SHOW_INDICATOR() {
-    return get_boolean(_Settings.KEY_SHOW_INDICATOR);
-  }
-  static set SHOW_INDICATOR(val) {
-    set_boolean(_Settings.KEY_SHOW_INDICATOR, val);
-  }
-  static get TILING_SYSTEM_ACTIVATION_KEY() {
-    return get_activationkey(
-      _Settings.KEY_TILING_SYSTEM_ACTIVATION_KEY,
-      0 /* CTRL */
-    );
-  }
-  static set TILING_SYSTEM_ACTIVATION_KEY(val) {
-    set_activationkey(_Settings.KEY_TILING_SYSTEM_ACTIVATION_KEY, val);
-  }
-  static get TILING_SYSTEM_DEACTIVATION_KEY() {
-    return get_activationkey(
-      _Settings.KEY_TILING_SYSTEM_DEACTIVATION_KEY,
-      -1 /* NONE */
-    );
-  }
-  static set TILING_SYSTEM_DEACTIVATION_KEY(val) {
-    set_activationkey(_Settings.KEY_TILING_SYSTEM_DEACTIVATION_KEY, val);
-  }
-  static get INNER_GAPS() {
-    return get_unsigned_number(_Settings.KEY_INNER_GAPS);
-  }
-  static set INNER_GAPS(val) {
-    set_unsigned_number(_Settings.KEY_INNER_GAPS, val);
-  }
-  static get OUTER_GAPS() {
-    return get_unsigned_number(_Settings.KEY_OUTER_GAPS);
-  }
-  static set OUTER_GAPS(val) {
-    set_unsigned_number(_Settings.KEY_OUTER_GAPS, val);
-  }
-  static get SPAN_MULTIPLE_TILES() {
-    return get_boolean(_Settings.KEY_SPAN_MULTIPLE_TILES);
-  }
-  static set SPAN_MULTIPLE_TILES(val) {
-    set_boolean(_Settings.KEY_SPAN_MULTIPLE_TILES, val);
-  }
-  static get SPAN_MULTIPLE_TILES_ACTIVATION_KEY() {
-    return get_activationkey(
-      _Settings.KEY_SPAN_MULTIPLE_TILES_ACTIVATION_KEY,
-      1 /* ALT */
-    );
-  }
-  static set SPAN_MULTIPLE_TILES_ACTIVATION_KEY(val) {
-    set_activationkey(_Settings.KEY_SPAN_MULTIPLE_TILES_ACTIVATION_KEY, val);
-  }
-  static get RESTORE_WINDOW_ORIGINAL_SIZE() {
-    return get_boolean(_Settings.KEY_RESTORE_WINDOW_ORIGINAL_SIZE);
-  }
-  static set RESTORE_WINDOW_ORIGINAL_SIZE(val) {
-    set_boolean(_Settings.KEY_RESTORE_WINDOW_ORIGINAL_SIZE, val);
-  }
-  static get WRAPAROUND_FOCUS() {
-    return get_boolean(_Settings.KEY_WRAPAROUND_FOCUS);
-  }
-  static set WRAPAROUND_FOCUS(val) {
-    set_boolean(_Settings.KEY_WRAPAROUND_FOCUS, val);
-  }
-  static get ENABLE_DIRECTIONAL_FOCUS_TILED_ONLY() {
-    return get_boolean(_Settings.KEY_ENABLE_DIRECTIONAL_FOCUS_TILED_ONLY);
-  }
-  static set ENABLE_DIRECTIONAL_FOCUS_TILED_ONLY(val) {
-    set_boolean(_Settings.KEY_ENABLE_DIRECTIONAL_FOCUS_TILED_ONLY, val);
-  }
-  static get RESIZE_COMPLEMENTING_WINDOWS() {
-    return get_boolean(_Settings.KEY_RESIZE_COMPLEMENTING_WINDOWS);
-  }
-  static set RESIZE_COMPLEMENTING_WINDOWS(val) {
-    set_boolean(_Settings.KEY_RESIZE_COMPLEMENTING_WINDOWS, val);
-  }
-  static get ENABLE_BLUR_SNAP_ASSISTANT() {
-    return get_boolean(_Settings.KEY_ENABLE_BLUR_SNAP_ASSISTANT);
-  }
-  static set ENABLE_BLUR_SNAP_ASSISTANT(val) {
-    set_boolean(_Settings.KEY_ENABLE_BLUR_SNAP_ASSISTANT, val);
-  }
-  static get ENABLE_BLUR_SELECTED_TILEPREVIEW() {
-    return get_boolean(_Settings.KEY_ENABLE_BLUR_SELECTED_TILEPREVIEW);
-  }
-  static set ENABLE_BLUR_SELECTED_TILEPREVIEW(val) {
-    set_boolean(_Settings.KEY_ENABLE_BLUR_SELECTED_TILEPREVIEW, val);
-  }
-  static get ENABLE_MOVE_KEYBINDINGS() {
-    return get_boolean(_Settings.KEY_ENABLE_MOVE_KEYBINDINGS);
-  }
-  static set ENABLE_MOVE_KEYBINDINGS(val) {
-    set_boolean(_Settings.KEY_ENABLE_MOVE_KEYBINDINGS, val);
-  }
-  static get ENABLE_AUTO_TILING() {
-    return get_boolean(_Settings.KEY_ENABLE_AUTO_TILING);
-  }
-  static set ENABLE_AUTO_TILING(val) {
-    set_boolean(_Settings.KEY_ENABLE_AUTO_TILING, val);
-  }
-  static get ACTIVE_SCREEN_EDGES() {
-    return get_boolean(_Settings.KEY_ACTIVE_SCREEN_EDGES);
-  }
-  static set ACTIVE_SCREEN_EDGES(val) {
-    set_boolean(_Settings.KEY_ACTIVE_SCREEN_EDGES, val);
-  }
-  static get TOP_EDGE_MAXIMIZE() {
-    return get_boolean(_Settings.KEY_TOP_EDGE_MAXIMIZE);
-  }
-  static set TOP_EDGE_MAXIMIZE(val) {
-    set_boolean(_Settings.KEY_TOP_EDGE_MAXIMIZE, val);
-  }
-  static get OVERRIDE_WINDOW_MENU() {
-    return get_boolean(_Settings.KEY_OVERRIDE_WINDOW_MENU);
-  }
-  static set OVERRIDE_WINDOW_MENU(val) {
-    set_boolean(_Settings.KEY_OVERRIDE_WINDOW_MENU, val);
-  }
-  static get OVERRIDE_ALT_TAB() {
-    return get_boolean(_Settings.KEY_OVERRIDE_ALT_TAB);
-  }
-  static set OVERRIDE_ALT_TAB(val) {
-    set_boolean(_Settings.KEY_OVERRIDE_ALT_TAB, val);
-  }
-  static get SNAP_ASSISTANT_THRESHOLD() {
-    return get_number(_Settings.KEY_SNAP_ASSISTANT_THRESHOLD);
-  }
-  static set SNAP_ASSISTANT_THRESHOLD(val) {
-    set_number(_Settings.KEY_SNAP_ASSISTANT_THRESHOLD, val);
-  }
-  static get QUARTER_TILING_THRESHOLD() {
-    return get_unsigned_number(_Settings.KEY_QUARTER_TILING_THRESHOLD);
-  }
-  static set QUARTER_TILING_THRESHOLD(val) {
-    set_unsigned_number(_Settings.KEY_QUARTER_TILING_THRESHOLD, val);
-  }
-  static get EDGE_TILING_OFFSET() {
-    return get_unsigned_number(_Settings.KEY_EDGE_TILING_OFFSET);
-  }
-  static set EDGE_TILING_OFFSET(val) {
-    set_unsigned_number(_Settings.KEY_EDGE_TILING_OFFSET, val);
-  }
-  static get WINDOW_BORDER_COLOR() {
-    return get_string(_Settings.KEY_WINDOW_BORDER_COLOR);
-  }
-  static set WINDOW_BORDER_COLOR(val) {
-    set_string(_Settings.KEY_WINDOW_BORDER_COLOR, val);
-  }
-  static get WINDOW_USE_CUSTOM_BORDER_COLOR() {
-    return get_boolean(_Settings.KEY_WINDOW_USE_CUSTOM_BORDER_COLOR);
-  }
-  static set WINDOW_USE_CUSTOM_BORDER_COLOR(val) {
-    set_boolean(_Settings.KEY_WINDOW_USE_CUSTOM_BORDER_COLOR, val);
-  }
-  static get WINDOW_BORDER_WIDTH() {
-    return get_unsigned_number(_Settings.KEY_WINDOW_BORDER_WIDTH);
-  }
-  static set WINDOW_BORDER_WIDTH(val) {
-    set_unsigned_number(_Settings.KEY_WINDOW_BORDER_WIDTH, val);
-  }
-  static get ENABLE_SMART_WINDOW_BORDER_RADIUS() {
-    return get_boolean(_Settings.KEY_ENABLE_SMART_WINDOW_BORDER_RADIUS);
-  }
-  static set ENABLE_SMART_WINDOW_BORDER_RADIUS(val) {
-    set_boolean(_Settings.KEY_ENABLE_SMART_WINDOW_BORDER_RADIUS, val);
-  }
-  static get ENABLE_WINDOW_BORDER() {
-    return get_boolean(_Settings.KEY_ENABLE_WINDOW_BORDER);
-  }
-  static set ENABLE_WINDOW_BORDER(val) {
-    set_boolean(_Settings.KEY_ENABLE_WINDOW_BORDER, val);
-  }
-  static get SNAP_ASSISTANT_ANIMATION_TIME() {
-    return get_unsigned_number(_Settings.KEY_SNAP_ASSISTANT_ANIMATION_TIME);
-  }
-  static set SNAP_ASSISTANT_ANIMATION_TIME(val) {
-    set_unsigned_number(_Settings.KEY_SNAP_ASSISTANT_ANIMATION_TIME, val);
-  }
-  static get TILE_PREVIEW_ANIMATION_TIME() {
-    return get_unsigned_number(_Settings.KEY_TILE_PREVIEW_ANIMATION_TIME);
-  }
-  static set TILE_PREVIEW_ANIMATION_TIME(val) {
-    set_unsigned_number(_Settings.KEY_TILE_PREVIEW_ANIMATION_TIME, val);
-  }
-  static get ENABLE_TILING_SYSTEM_WINDOWS_SUGGESTIONS() {
-    return get_boolean(
-      _Settings.KEY_ENABLE_TILING_SYSTEM_WINDOWS_SUGGESTIONS
-    );
-  }
-  static set ENABLE_TILING_SYSTEM_WINDOWS_SUGGESTIONS(val) {
-    set_boolean(_Settings.KEY_ENABLE_TILING_SYSTEM_WINDOWS_SUGGESTIONS, val);
-  }
-  static get ENABLE_SNAP_ASSISTANT_WINDOWS_SUGGESTIONS() {
-    return get_boolean(
-      _Settings.KEY_ENABLE_SNAP_ASSISTANT_WINDOWS_SUGGESTIONS
-    );
-  }
-  static set ENABLE_SNAP_ASSISTANT_WINDOWS_SUGGESTIONS(val) {
-    set_boolean(
-      _Settings.KEY_ENABLE_SNAP_ASSISTANT_WINDOWS_SUGGESTIONS,
-      val
-    );
-  }
-  static get ENABLE_SCREEN_EDGES_WINDOWS_SUGGESTIONS() {
-    return get_boolean(
-      _Settings.KEY_ENABLE_SCREEN_EDGES_WINDOWS_SUGGESTIONS
-    );
-  }
-  static set ENABLE_SCREEN_EDGES_WINDOWS_SUGGESTIONS(val) {
-    set_boolean(_Settings.KEY_ENABLE_SCREEN_EDGES_WINDOWS_SUGGESTIONS, val);
-  }
-  static get_inner_gaps(scaleFactor = 1) {
-    const value = this.INNER_GAPS * scaleFactor;
-    return {
-      top: value,
-      bottom: value,
-      left: value,
-      right: value
-    };
-  }
-  static get_outer_gaps(scaleFactor = 1) {
-    const value = this.OUTER_GAPS * scaleFactor;
-    return {
-      top: value,
-      bottom: value,
-      left: value,
-      right: value
-    };
-  }
-  static get_layouts_json() {
-    try {
-      const layouts = JSON.parse(
-        this._settings?.get_string(this.KEY_SETTING_LAYOUTS_JSON) || "[]"
-      );
-      if (layouts.length === 0)
-        throw new Error("At least one layout is required");
-      return layouts.filter((layout) => layout.tiles.length > 0);
-    } catch (ex) {
-      this.reset_layouts_json();
-      return JSON.parse(
-        this._settings?.get_string(this.KEY_SETTING_LAYOUTS_JSON) || "[]"
-      );
-    }
-  }
-  static get_selected_layouts() {
-    const variant = this._settings?.get_value(
-      _Settings.KEY_SETTING_SELECTED_LAYOUTS
-    );
-    if (!variant) return [];
-    const result = [];
-    for (let i = 0; i < variant.n_children(); i++) {
-      const monitor_variant = variant.get_child_value(i);
-      if (!monitor_variant) continue;
-      const n_workspaces = monitor_variant.n_children();
-      const monitor_result = [];
-      for (let j = 0; j < n_workspaces; j++) {
-        const layout_variant = monitor_variant.get_child_value(j);
-        if (!layout_variant) continue;
-        monitor_result.push(layout_variant.get_string()[0]);
-      }
-      result.push(monitor_result);
-    }
-    return result;
-  }
-  static reset_layouts_json() {
-    this.save_layouts_json([
-      new Layout(
-        [
-          new Tile2({
-            x: 0,
-            y: 0,
-            height: 0.5,
-            width: 0.22,
-            groups: [1, 2]
-          }),
-          // top-left
-          new Tile2({
-            x: 0,
-            y: 0.5,
-            height: 0.5,
-            width: 0.22,
-            groups: [1, 2]
-          }),
-          // bottom-left
-          new Tile2({
-            x: 0.22,
-            y: 0,
-            height: 1,
-            width: 0.56,
-            groups: [2, 3]
-          }),
-          // center
-          new Tile2({
-            x: 0.78,
-            y: 0,
-            height: 0.5,
-            width: 0.22,
-            groups: [3, 4]
-          }),
-          // top-right
-          new Tile2({
-            x: 0.78,
-            y: 0.5,
-            height: 0.5,
-            width: 0.22,
-            groups: [3, 4]
-          })
-          // bottom-right
-        ],
-        "Layout 1"
-      ),
-      new Layout(
-        [
-          new Tile2({
-            x: 0,
-            y: 0,
-            height: 1,
-            width: 0.22,
-            groups: [1]
-          }),
-          new Tile2({
-            x: 0.22,
-            y: 0,
-            height: 1,
-            width: 0.56,
-            groups: [1, 2]
-          }),
-          new Tile2({
-            x: 0.78,
-            y: 0,
-            height: 1,
-            width: 0.22,
-            groups: [2]
-          })
-        ],
-        "Layout 2"
-      ),
-      new Layout(
-        [
-          new Tile2({
-            x: 0,
-            y: 0,
-            height: 1,
-            width: 0.33,
-            groups: [1]
-          }),
-          new Tile2({
-            x: 0.33,
-            y: 0,
-            height: 1,
-            width: 0.67,
-            groups: [1]
-          })
-        ],
-        "Layout 3"
-      ),
-      new Layout(
-        [
-          new Tile2({
-            x: 0,
-            y: 0,
-            height: 1,
-            width: 0.67,
-            groups: [1]
-          }),
-          new Tile2({
-            x: 0.67,
-            y: 0,
-            height: 1,
-            width: 0.33,
-            groups: [1]
-          })
-        ],
-        "Layout 4"
-      )
-    ]);
-  }
-  static save_layouts_json(layouts) {
-    this._settings?.set_string(
-      this.KEY_SETTING_LAYOUTS_JSON,
-      JSON.stringify(layouts)
-    );
-  }
-  static save_selected_layouts(ids) {
-    if (ids.length === 0) {
-      this._settings?.reset(_Settings.KEY_SETTING_SELECTED_LAYOUTS);
-      return;
-    }
-    const variants = ids.map(
-      (monitor_ids) => GLib.Variant.new_strv(monitor_ids)
-    );
-    const result = GLib.Variant.new_array(null, variants);
-    this._settings?.set_value(
-      _Settings.KEY_SETTING_SELECTED_LAYOUTS,
-      result
-    );
-  }
-  static connect(key, func) {
-    return this._settings?.connect(`changed::${key}`, func) || -1;
-  }
-  static disconnect(id) {
-    this._settings?.disconnect(id);
-  }
-};
-
-// src/utils/logger.ts
-function rect_to_string(rect) {
-  return `{x: ${rect.x}, y: ${rect.y}, width: ${rect.width}, height: ${rect.height}}`;
-}
-var logger = (prefix) => (...content) => console.log("[tilingshell]", `[${prefix}]`, ...content);
-
-// src/settings/settingsOverride.ts
-var SettingsOverride = class _SettingsOverride {
-  // map schema_id with map of keys and old values
-  _overriddenKeys;
-  static _instance;
-  constructor() {
-    this._overriddenKeys = this._jsonToOverriddenKeys(
-      Settings.OVERRIDDEN_SETTINGS
-    );
-  }
-  static get() {
-    if (!this._instance) this._instance = new _SettingsOverride();
-    return this._instance;
-  }
-  static destroy() {
-    if (!this._instance) return;
-    this._instance.restoreAll();
-    this._instance = null;
-  }
-  /*
-  json will have the following structure
-  {
-      "schema.id": {
-          "overridden.key.one": oldvalue,
-          "overridden.key.two": oldvalue
-          ...
-      },
-      ...
-  }
-  */
-  _overriddenKeysToJSON() {
-    const obj = {};
-    this._overriddenKeys.forEach((override, schemaId) => {
-      obj[schemaId] = {};
-      override.forEach((oldValue, key) => {
-        obj[schemaId][key] = oldValue.print(true);
-      });
-    });
-    return JSON.stringify(obj);
-  }
-  _jsonToOverriddenKeys(json) {
-    const result = /* @__PURE__ */ new Map();
-    const obj = JSON.parse(json);
-    for (const schemaId in obj) {
-      const schemaMap = /* @__PURE__ */ new Map();
-      result.set(schemaId, schemaMap);
-      const overrideObj = obj[schemaId];
-      for (const key in overrideObj) {
-        schemaMap.set(
-          key,
-          GLib.Variant.parse(null, overrideObj[key], null, null)
-        );
-      }
-    }
-    return result;
-  }
-  override(giosettings, keyToOverride, newValue) {
-    const schemaId = giosettings.schemaId;
-    const schemaMap = this._overriddenKeys.get(schemaId) || /* @__PURE__ */ new Map();
-    if (!this._overriddenKeys.has(schemaId))
-      this._overriddenKeys.set(schemaId, schemaMap);
-    const oldValue = schemaMap.has(keyToOverride) ? schemaMap.get(keyToOverride) : giosettings.get_value(keyToOverride);
-    const res = giosettings.set_value(keyToOverride, newValue);
-    if (!res) return null;
-    if (!schemaMap.has(keyToOverride)) {
-      schemaMap.set(keyToOverride, oldValue);
-      Settings.OVERRIDDEN_SETTINGS = this._overriddenKeysToJSON();
-    }
-    return oldValue;
-  }
-  restoreKey(giosettings, keyToOverride) {
-    const overridden = this._overriddenKeys.get(giosettings.schemaId);
-    if (!overridden) return null;
-    const oldValue = overridden.get(keyToOverride);
-    if (!oldValue) return null;
-    const res = giosettings.set_value(keyToOverride, oldValue);
-    if (res) {
-      overridden.delete(keyToOverride);
-      if (overridden.size === 0)
-        this._overriddenKeys.delete(giosettings.schemaId);
-      Settings.OVERRIDDEN_SETTINGS = this._overriddenKeysToJSON();
-    }
-    return oldValue;
-  }
-  restoreAll() {
-    const schemaToDelete = [];
-    this._overriddenKeys.forEach(
-      (map, schemaId) => {
-        const giosettings = new Gio.Settings({ schemaId });
-        const overridden = this._overriddenKeys.get(
-          giosettings.schemaId
-        );
-        if (!overridden) return;
-        const toDelete = [];
-        overridden.forEach((oldValue, key) => {
-          const done = giosettings.set_value(key, oldValue);
-          if (done) toDelete.push(key);
-        });
-        toDelete.forEach((key) => overridden.delete(key));
-        if (overridden.size === 0) schemaToDelete.push(schemaId);
-      }
-    );
-    schemaToDelete.forEach((schemaId) => {
-      this._overriddenKeys.delete(schemaId);
-    });
-    if (this._overriddenKeys.size === 0) this._overriddenKeys = /* @__PURE__ */ new Map();
-    Settings.OVERRIDDEN_SETTINGS = this._overriddenKeysToJSON();
-  }
-};
-
-// src/settings/settingsExport.ts
-var dconfPath = "/org/gnome/shell/extensions/tilingshell/";
-var excludedKeys = [
-  Settings.KEY_SETTING_LAYOUTS_JSON,
-  Settings.KEY_LAST_VERSION_NAME_INSTALLED,
-  Settings.KEY_OVERRIDDEN_SETTINGS
-];
-var SettingsExport = class {
-  _gioSettings;
-  constructor(gioSettings) {
-    this._gioSettings = gioSettings;
-  }
-  exportToString() {
-    return this._excludeKeys(this._dumpDconf());
-  }
-  importFromString(content) {
-    this.restoreToDefault();
-    const proc = Gio.Subprocess.new(
-      ["dconf", "load", dconfPath],
-      Gio.SubprocessFlags.STDIN_PIPE
-    );
-    proc.communicate_utf8(content, null);
-    if (!proc.get_successful()) {
-      this.restoreToDefault();
-      throw new Error(
-        "Failed to import dconf dump file. Restoring to default..."
-      );
-    }
-  }
-  restoreToDefault() {
-    Settings.ACTIVE_SCREEN_EDGES = false;
-    Settings.ENABLE_MOVE_KEYBINDINGS = false;
-    SettingsOverride.get().restoreAll();
-    this._gioSettings.list_keys().filter((key) => key.length > 0 && !excludedKeys.includes(key)).forEach((key) => this._gioSettings.reset(key));
-  }
-  _dumpDconf() {
-    const proc = Gio.Subprocess.new(
-      ["dconf", "dump", dconfPath],
-      Gio.SubprocessFlags.STDOUT_PIPE
-    );
-    const [, dump] = proc.communicate_utf8(null, null);
-    if (proc.get_successful()) return dump;
-    else throw new Error("Failed to dump dconf");
-  }
-  _excludeKeys(dconfDump) {
-    if (dconfDump.length === 0) throw new Error("Empty dconf dump");
-    const keyFile = new GLib.KeyFile();
-    const length = new TextEncoder().encode(dconfDump).length;
-    if (!keyFile.load_from_data(dconfDump, length, GLib.KeyFileFlags.NONE))
-      throw new Error("Failed to load from dconf dump");
-    const [key_list] = keyFile.get_keys("/");
-    key_list.forEach((key) => {
-      if (excludedKeys.includes(key)) keyFile.remove_key("/", key);
-    });
-    const [data] = keyFile.to_data();
-    if (data) return data;
-    else throw new Error("Failed to exclude dconf keys");
-  }
-};
-
-// src/prefs.ts
+/*!
+ * Tiling Shell: advanced and modern window management for GNOME
+ *
+ * Copyright (C) 2025 Domenico Ferraro
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 var _a;
+import { Gtk, Adw, Gio, GLib, Gdk, GObject } from "./gi/prefs.js";
+import Settings from "./settings/settings.js";
+import { EdgeTilingMode, ActivationKey } from "./settings/settings.js";
+import { logger } from "./utils/logger.js";
 import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
+import SettingsExport from "./settings/settingsExport.js";
 import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 import * as Config from "resource:///org/gnome/Shell/Extensions/js/misc/config.js";
-var debug = logger("prefs");
-function buildPrefsWidget() {
-  return new Gtk.Label({
-    label: "Preferences"
-  });
-}
-var TilingShellExtensionPreferences = class extends ExtensionPreferences {
+const debug = logger("prefs");
+const RESOURCES_PREFIX = "/org/gnome/Shell/Extensions/tilingshell";
+
+class TilingShellExtensionPreferences extends ExtensionPreferences {
   GNOME_VERSION_MAJOR = Number(Config.PACKAGE_VERSION.split(".")[0]);
+  loadCssAndResources() {
+    const resource = Gio.Resource.load(`${this.path}/resources.gresource`);
+    Gio.resources_register(resource);
+    const provider = new Gtk.CssProvider();
+    provider.load_from_path(`${this.path}/prefs.css`);
+    Gtk.StyleContext.add_provider_for_display(
+      Gdk.Display.get_default(),
+      provider,
+      Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+    );
+    Gtk.IconTheme.get_for_display(Gdk.Display.get_default()).add_resource_path(`${RESOURCES_PREFIX}/icons/scalable/actions`);
+  }
+
   /**
    * This function is called when the preferences window is first created to fill
    * the `Adw.PreferencesWindow`.
@@ -788,6 +53,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
    */
   fillPreferencesWindow(window) {
     Settings.initialize(this.getSettings());
+    this.loadCssAndResources();
     const prefsPage = new Adw.PreferencesPage({
       name: "general",
       title: _("General"),
@@ -864,7 +130,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
       this._buildSwitchRow(
         Settings.KEY_ENABLE_SMART_WINDOW_BORDER_RADIUS,
         _("Smart border radius"),
-        _("Dynamically adapt to the window\u2019s actual border radius")
+        _("Dynamically adapt to the window's actual border radius")
       )
     );
     windowBorderExpanderRow.add_row(
@@ -930,6 +196,19 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
       _("Move the window on top of the screen to snap assist it")
     );
     behaviourGroup.add(snapAssistRow);
+    const snapAssistSyncLayoutRow = this._buildSwitchRow(
+      Settings.KEY_SNAP_ASSIST_SYNC_LAYOUT,
+      _("Sync layout when tiling with Snap Assistant"),
+      _(
+        "Change the active layout to match the layout used when tiling a window with Snap Assistant"
+      )
+    );
+    Settings.bind(
+      Settings.KEY_SNAP_ASSIST,
+      snapAssistSyncLayoutRow,
+      "sensitive"
+    );
+    behaviourGroup.add(snapAssistSyncLayoutRow);
     const enableTilingSystemRow = this._buildSwitchRow(
       Settings.KEY_TILING_SYSTEM,
       _("Enable Tiling System"),
@@ -997,6 +276,14 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
       )
     );
     behaviourGroup.add(overrideAltTabRow);
+    const raiseTogetherRow = this._buildSwitchRow(
+      Settings.KEY_RAISE_TOGETHER,
+      _("Raise tiled windows together"),
+      _(
+        "When one tiled window is raised, raise all tiled windows into the foreground together"
+      )
+    );
+    behaviourGroup.add(raiseTogetherRow);
     const activeScreenEdgesGroup = new Adw.PreferencesGroup({
       title: _("Screen Edges"),
       description: _(
@@ -1057,6 +344,11 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
       "sensitive"
     );
     activeScreenEdgesGroup.add(edgeTilingOffset);
+    const edgeTilingBehaviourRow = this._buildEdgeTilingBehaviourRow(
+      Settings.EDGE_TILING_MODE,
+      (newMode) => Settings.EDGE_TILING_MODE = newMode
+    );
+    activeScreenEdgesGroup.add(edgeTilingBehaviourRow);
     prefsPage.add(activeScreenEdgesGroup);
     const windowsSuggestionsGroup = new Adw.PreferencesGroup({
       title: _("Windows suggestions"),
@@ -1081,9 +373,9 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     windowsSuggestionsGroup.add(snapAssistWindowSuggestionRow);
     const screenEdgesWindowSuggestionRow = this._buildSwitchRow(
       Settings.KEY_ENABLE_SCREEN_EDGES_WINDOWS_SUGGESTIONS,
-      _("Enable window suggestions for screen edge snapping"),
+      _("Enable window suggestions for screen edge tiling"),
       _(
-        "Suggests windows to occupy empty tiles when snapping to screen edges"
+        "Suggests windows to occupy empty tiles when tiling to screen edges"
       )
     );
     windowsSuggestionsGroup.add(screenEdgesWindowSuggestionRow);
@@ -1391,6 +683,9 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
         false
       ]
     ];
+    const backwardSettingsKey = /* @__PURE__ */ new Map([
+      [Settings.SETTING_CYCLE_LAYOUTS, Settings.SETTING_CYCLE_LAYOUTS_BACKWARD]
+    ]);
     for (let i = 0; i < keybindings.length; i++) {
       keybindings[i][3] = gioSettings.get_strv(keybindings[i][0])[0].length > 0;
     }
@@ -1399,6 +694,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
         if (!isSet && !isOnMainPage) return;
         const row = this._buildShortcutButtonRow(
           settingsKey,
+          backwardSettingsKey.get(settingsKey),
           gioSettings,
           title,
           subtitle
@@ -1450,6 +746,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     keybindings.forEach(([settingsKey, title, subtitle]) => {
       const row = this._buildShortcutButtonRow(
         settingsKey,
+        backwardSettingsKey.get(settingsKey),
         gioSettings,
         title,
         subtitle
@@ -1649,6 +946,100 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     });
     return Promise.resolve();
   }
+
+  _createEdgeTilingBehaviourOption(title, subtitle, iconName) {
+    const button = new Gtk.ToggleButton({
+      canFocus: true,
+      valign: Gtk.Align.FILL,
+      cssClasses: ["option"],
+      hexpand: true,
+      vexpand: false
+    });
+    const distance = 12;
+    const content = new Gtk.Box({
+      orientation: Gtk.Orientation.VERTICAL,
+      margin_top: 0,
+      margin_bottom: distance,
+      margin_start: 0,
+      margin_end: 0
+    });
+    const settings = Gtk.Settings.get_default();
+    const iconNameByTheme = settings?.gtk_application_prefer_dark_theme ? iconName : `${iconName}-dark`;
+    const image = new Gtk.Image({
+      iconName: iconNameByTheme,
+      pixel_size: 96,
+      margin_top: distance,
+      margin_bottom: distance,
+      margin_start: 0,
+      margin_end: 0,
+      cssClasses: ["image"]
+    });
+    const titleLabel = new Gtk.Label({
+      label: title,
+      wrap: true,
+      xalign: 0,
+      css_classes: ["title"]
+    });
+    const subtitleLabel = new Gtk.Label({
+      label: subtitle,
+      wrap: true,
+      xalign: 0,
+      css_classes: ["caption"]
+    });
+    content.append(image);
+    content.append(titleLabel);
+    content.append(subtitleLabel);
+    button.set_child(content);
+    return button;
+  }
+
+  _buildEdgeTilingBehaviourRow(currentMode, onModeChange) {
+    const row = new Adw.ActionRow({
+      activatable: false,
+      title: _("Choose how windows snap to screen edges"),
+      cssClasses: ["edge-tiling-behaviour"]
+    });
+    row.get_child().set_orientation(Gtk.Orientation.VERTICAL);
+    const content = new Gtk.Box({
+      orientation: Gtk.Orientation.HORIZONTAL,
+      halign: Gtk.Align.FILL,
+      valign: Gtk.Align.FILL,
+      homogeneous: true,
+      // all children same size
+      spacing: 2,
+      cssClasses: ["content"],
+      margin_bottom: 6
+    });
+    const defaultBtn = this._createEdgeTilingBehaviourOption(
+      _("Default"),
+      _("Follow quarters or screen halves"),
+      "edge-default-symbolic"
+    );
+    defaultBtn.connect("toggled", () => onModeChange(EdgeTilingMode.DEFAULT));
+    const adaptiveBtn = this._createEdgeTilingBehaviourOption(
+      _("Adaptive"),
+      _("Follow corners of selected layout or screen halves"),
+      "edge-adaptive-symbolic"
+    );
+    adaptiveBtn.connect("toggled", () => onModeChange(EdgeTilingMode.ADAPTIVE));
+    const granularBtn = this._createEdgeTilingBehaviourOption(
+      _("Granular"),
+      _("Follow currently selected layout"),
+      "edge-granular-symbolic"
+    );
+    granularBtn.connect("toggled", () => onModeChange(EdgeTilingMode.GRANULAR));
+    content.append(defaultBtn);
+    content.append(adaptiveBtn);
+    content.append(granularBtn);
+    defaultBtn.set_group(adaptiveBtn);
+    granularBtn.set_group(adaptiveBtn);
+    if (currentMode === EdgeTilingMode.ADAPTIVE) adaptiveBtn.set_active(true);
+    else if (currentMode === EdgeTilingMode.GRANULAR) granularBtn.set_active(true);
+    else defaultBtn.set_active(true);
+    row.get_child().append(content);
+    return row;
+  }
+
   _buildSwitchRow(settingsKey, title, subtitle, suffix) {
     const gtkSwitch = new Gtk.Switch({
       vexpand: false,
@@ -1664,6 +1055,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     Settings.bind(settingsKey, gtkSwitch, "active");
     return adwRow;
   }
+
   _buildDropDownRow(title, subtitle, initialValue, onChange, styleClass) {
     const dropDown = this._buildActivationKeysDropDown(
       initialValue,
@@ -1680,6 +1072,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     adwRow.add_suffix(dropDown);
     return adwRow;
   }
+
   _buildSpinButtonRow(settingsKey, title, subtitle, min = 0, max = 32) {
     const spinBtn = Gtk.SpinButton.new_with_range(min, max, 1);
     spinBtn.set_vexpand(false);
@@ -1693,6 +1086,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     Settings.bind(settingsKey, spinBtn, "value");
     return adwRow;
   }
+
   _buildButtonRow(label, title, subtitle, onClick, styleClass) {
     const btn = Gtk.Button.new_with_label(label);
     if (styleClass) btn.add_css_class(styleClass);
@@ -1707,6 +1101,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     adwRow.add_suffix(btn);
     return adwRow;
   }
+
   _openLayoutEditor() {
     try {
       Gio.DBus.session.call_sync(
@@ -1725,12 +1120,13 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
       console.error(e);
     }
   }
+
   _buildActivationKeysDropDown(initialValue, onChange, styleClass) {
     const options = new Gtk.StringList();
     const activationKeys = [
-      0 /* CTRL */,
-      1 /* ALT */,
-      2 /* SUPER */
+      ActivationKey.CTRL,
+      ActivationKey.ALT,
+      ActivationKey.SUPER
     ];
     activationKeys.forEach((k) => options.append(ActivationKey[k]));
     options.append("(None)");
@@ -1740,7 +1136,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     });
     dropdown.connect("notify::selected-item", (dd) => {
       const index = dd.get_selected();
-      const selected = index < 0 || index >= activationKeys.length ? -1 /* NONE */ : activationKeys[index];
+      const selected = index < 0 || index >= activationKeys.length ? ActivationKey.NONE : activationKeys[index];
       onChange(selected);
     });
     if (styleClass) dropdown.add_css_class(styleClass);
@@ -1748,6 +1144,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     dropdown.set_valign(Gtk.Align.CENTER);
     return dropdown;
   }
+
   _buildLinkButton(label, uri) {
     const btn = new Gtk.Button({
       label,
@@ -1758,8 +1155,9 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     });
     return btn;
   }
-  _buildShortcutButtonRow(settingsKey, gioSettings, title, subtitle, styleClass) {
-    const btn = new ShortcutSettingButton(settingsKey, gioSettings);
+
+  _buildShortcutButtonRow(settingsKey, backwardKey, gioSettings, title, subtitle, styleClass) {
+    const btn = new ShortcutSettingButton(settingsKey, gioSettings, backwardKey);
     if (styleClass) btn.add_css_class(styleClass);
     btn.set_vexpand(false);
     btn.set_valign(Gtk.Align.CENTER);
@@ -1771,6 +1169,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     adwRow.add_suffix(btn);
     return adwRow;
   }
+
   _buildScaleRow(title, subtitle, onChange, initialValue, min, max, step) {
     const scale = Gtk.Scale.new_with_range(
       Gtk.Orientation.HORIZONTAL,
@@ -1793,11 +1192,13 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     adwRow.add_suffix(scale);
     return adwRow;
   }
+
   _getRGBAFromString(str) {
     const rgba = new Gdk.RGBA();
     rgba.parse(str);
     return rgba;
   }
+
   _buildColorButton(rgba, onChange) {
     const colorButton = new Gtk.ColorButton({
       rgba,
@@ -1809,6 +1210,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     });
     return colorButton;
   }
+
   _buildCustomColorDropDown(initialValue, onChange, styleClass) {
     const options = new Gtk.StringList();
     options.append(_("Choose custom color"));
@@ -1827,6 +1229,7 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     dropdown.set_valign(Gtk.Align.CENTER);
     return dropdown;
   }
+
   _buildFileChooserDialog(title, action, window, accept, cancel, filter, onResponse) {
     const fc = new Gtk.FileChooserNative({
       title,
@@ -1844,14 +1247,16 @@ var TilingShellExtensionPreferences = class extends ExtensionPreferences {
     fc.connect("response", onResponse);
     return fc;
   }
-};
-var ShortcutSettingButton = (_a = class extends Gtk.Button {
+}
+
+const ShortcutSettingButton = (_a = class extends Gtk.Button {
   _editor;
   _label;
   _shortcut;
   _settingsKey;
   _gioSettings;
-  constructor(settingsKey, gioSettings) {
+  _backwardKey;
+  constructor(settingsKey, gioSettings, backwardKey = void 0) {
     super({
       halign: Gtk.Align.CENTER,
       hexpand: false,
@@ -1868,6 +1273,7 @@ var ShortcutSettingButton = (_a = class extends Gtk.Button {
       hexpand: false,
       vexpand: false
     });
+    this._backwardKey = backwardKey;
     this.connect("clicked", this._onActivated.bind(this));
     gioSettings.connect(`changed::${settingsKey}`, () => {
       [this.shortcut] = gioSettings.get_strv(settingsKey);
@@ -1877,12 +1283,15 @@ var ShortcutSettingButton = (_a = class extends Gtk.Button {
     this._label.set_accelerator(this.shortcut);
     this.set_child(this._label);
   }
+
   set shortcut(value) {
     this._shortcut = value;
   }
+
   get shortcut() {
     return this._shortcut;
   }
+
   _onActivated(widget) {
     const ctl = new Gtk.EventControllerKey();
     const content = new Adw.StatusPage({
@@ -1904,6 +1313,7 @@ var ShortcutSettingButton = (_a = class extends Gtk.Button {
     ctl.connect("key-pressed", this._onKeyPressed.bind(this));
     this._editor.present();
   }
+
   _onKeyPressed(_widget, keyval, keycode, state) {
     let mask = state & Gtk.accelerator_get_default_mod_mask();
     mask &= ~Gdk.ModifierType.LOCK_MASK;
@@ -1933,12 +1343,17 @@ var ShortcutSettingButton = (_a = class extends Gtk.Button {
     this._editor?.destroy();
     return Gdk.EVENT_STOP;
   }
+
   _updateShortcut(val) {
     this.shortcut = val;
     this._label.set_accelerator(this.shortcut);
     this._gioSettings.set_strv(this._settingsKey, [this.shortcut]);
+    if (this._backwardKey) {
+      this._gioSettings.set_strv(this._backwardKey, [`<Shift>${this.shortcut}`]);
+    }
     this.emit("changed", this.shortcut);
   }
+
   // Functions from https://gitlab.gnome.org/GNOME/gnome-control-center/-/blob/main/panels/keyboard/keyboard-shortcuts.c
   keyvalIsForbidden(keyval) {
     return [
@@ -1958,10 +1373,12 @@ var ShortcutSettingButton = (_a = class extends Gtk.Button {
       Gdk.KEY_Mode_switch
     ].includes(keyval);
   }
+
   isValidBinding(mask, keycode, keyval) {
     return !(mask === 0 || // @ts-expect-error "Gdk has SHIFT_MASK"
     mask === Gdk.SHIFT_MASK && keycode !== 0 && (keyval >= Gdk.KEY_a && keyval <= Gdk.KEY_z || keyval >= Gdk.KEY_A && keyval <= Gdk.KEY_Z || keyval >= Gdk.KEY_0 && keyval <= Gdk.KEY_9 || keyval >= Gdk.KEY_kana_fullstop && keyval <= Gdk.KEY_semivoicedsound || keyval >= Gdk.KEY_Arabic_comma && keyval <= Gdk.KEY_Arabic_sukun || keyval >= Gdk.KEY_Serbian_dje && keyval <= Gdk.KEY_Cyrillic_HARDSIGN || keyval >= Gdk.KEY_Greek_ALPHAaccent && keyval <= Gdk.KEY_Greek_omega || keyval >= Gdk.KEY_hebrew_doublelowline && keyval <= Gdk.KEY_hebrew_taf || keyval >= Gdk.KEY_Thai_kokai && keyval <= Gdk.KEY_Thai_lekkao || keyval >= Gdk.KEY_Hangul_Kiyeog && keyval <= Gdk.KEY_Hangul_J_YeorinHieuh || keyval === Gdk.KEY_space && mask === 0 || this.keyvalIsForbidden(keyval)));
   }
+
   isValidAccel(mask, keyval) {
     return Gtk.accelerator_valid(keyval, mask) || keyval === Gdk.KEY_Tab && mask !== 0;
   }
@@ -1985,23 +1402,3 @@ var ShortcutSettingButton = (_a = class extends Gtk.Button {
 export {
   TilingShellExtensionPreferences as default
 };
-/*!
- * Tiling Shell: advanced and modern window management for GNOME
- *
- * Copyright (C) 2025 Domenico Ferraro
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>
- *
- * SPDX-License-Identifier: GPL-3.0-or-later
- */

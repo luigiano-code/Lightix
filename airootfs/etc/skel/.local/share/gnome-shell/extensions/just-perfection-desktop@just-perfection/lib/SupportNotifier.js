@@ -2,7 +2,7 @@
  * Support Notifier Library
  *
  * @author     Javad Rahmatzadeh <j.rahmatzadeh@gmail.com>
- * @copyright  2020-2025
+ * @copyright  2020-2026
  * @license    GPL-3.0-only
  */
 
@@ -33,7 +33,7 @@ export class SupportNotifier
     /**
      * Instance of Gio.Settings
      *
-     * @type {Settings|null}
+     * @type {Gio.Settings|null}
      */
     #settings = null;
 
@@ -52,9 +52,9 @@ export class SupportNotifier
      *   'Main' reference to ui::main
      *   'GLib' reference to GLib
      *   'Gio' reference to Gio
-     * @param {number} shellVersion float in major.minor format
-     * @param {number} extensionVersion integer
-     * @param {Object} extension Extension
+     * @param {number} shellVersion - float in major.minor format
+     * @param {number} extensionVersion - integer
+     * @param {Object} extension
      */
     constructor(dependencies, shellVersion, extensionVersion, extension)
     {
@@ -106,6 +106,9 @@ export class SupportNotifier
                     this._glib.PRIORITY_LOW,
                     300,
                     () => {
+                        if (this.#isInFullscreen()) {
+                            return this._glib.SOURCE_CONTINUE;
+                        }
                         this.#showNotification();
                         this._timeoutId = null;
                         return this._glib.SOURCE_REMOVE;
@@ -162,6 +165,16 @@ export class SupportNotifier
         let showedVersion = this.#settings.get_int('support-notifier-showed-version');
 
         return this.#extensionVersion <= showedVersion;
+    }
+
+    /**
+     * check whether any app is in fullscreen
+     *
+     * @returns {boolean}
+     */
+    #isInFullscreen()
+    {
+        return this._main.layoutManager.primaryMonitor?.inFullscreen ?? false;
     }
 
     /**

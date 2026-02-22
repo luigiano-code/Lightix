@@ -111,8 +111,8 @@ export class Layout extends BaseMenuLayout {
             mainBox.add_child(this.searchEntry);
         }
 
-        const userAvatar = ArcMenuManager.settings.get_boolean('disable-user-avatar');
-        if (!userAvatar) {
+        const userAvatar = ArcMenuManager.settings.get_boolean('show-user-avatar');
+        if (userAvatar) {
             const avatarMenuItem = new MW.AvatarMenuItem(this, Constants.DisplayType.LIST);
             this.rightBox.add_child(avatarMenuItem);
             const separator = new MW.ArcMenuSeparator(this, Constants.SeparatorStyle.SHORT,

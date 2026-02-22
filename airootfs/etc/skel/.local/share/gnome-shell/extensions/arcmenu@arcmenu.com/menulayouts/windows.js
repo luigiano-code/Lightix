@@ -324,7 +324,7 @@ export class Layout extends BaseMenuLayout {
         super.setDefaultMenuView();
 
         this.displayAllApps();
-        if (!ArcMenuManager.settings.get_boolean('windows-disable-pinned-apps'))
+        if (ArcMenuManager.settings.get_boolean('windows-show-pinned-apps'))
             this.displayPinnedApps();
 
         const {vadjustment} = getScrollViewAdjustments(this.pinnedAppsScrollBox);
@@ -365,7 +365,7 @@ export class Layout extends BaseMenuLayout {
     displayAllApps() {
         this._clearActorsFromBox();
 
-        if (!ArcMenuManager.settings.get_boolean('windows-disable-frequent-apps'))
+        if (ArcMenuManager.settings.get_boolean('windows-show-frequent-apps'))
             this.displayFrequentApps();
 
         const appList = [];

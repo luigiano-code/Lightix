@@ -1,11 +1,31 @@
 <?xml version="1.0"?>
 <application-state>
   <context id="">
+    <application id="net.blockbench.Blockbench.desktop" score="204" last-seen="1771618069"/>
+    <application id="code-oss.desktop" score="5357.5" last-seen="1770392808"/>
     <application id="gnome-display-panel.desktop" score="0" last-seen="0"/>
-    <application id="org.gnome.Shell.Extensions.desktop" score="0" last-seen="1757760387"/>
-    <application id="com.mattjakeman.ExtensionManager.desktop" score="76" last-seen="1757760387"/>
-    <application id="org.gnome.Terminal.desktop" score="39" last-seen="1757759794"/>
-    <application id="firefox.desktop" score="12" last-seen="1757760104"/>
-    <application id="org.gnome.Settings.desktop" score="3" last-seen="1757760373"/>
+    <application id="org.gnome.Loupe.desktop" score="0" last-seen="1771758749"/>
+    <application id="org.vinegarhq.Sober.desktop" score="8346" last-seen="1771670656"/>
+    <application id="org.gnome.Software.desktop" score="16" last-seen="1771672817"/>
+    <application id="org.gnome.Epiphany.desktop" score="0" last-seen="1771702981"/>
+    <application id="aseprite.desktop" score="0" last-seen="1771673495"/>
+    <application id="org.gnome.Boxes.desktop" score="4330" last-seen="1770550670"/>
+    <application id="steam.desktop" score="5" last-seen="1771616375"/>
+    <application id="blender.desktop" score="88" last-seen="1771619173"/>
+    <application id="org.gnome.Calendar.desktop" score="0" last-seen="1771705550"/>
+    <application id="org.kde.krita.desktop" score="122" last-seen="1771672162"/>
+    <application id="org.gnome.Nautilus.desktop" score="41" last-seen="1771760960"/>
+    <application id="minecraft-launcher.desktop" score="19" last-seen="1771705622"/>
+    <application id="com.mattjakeman.ExtensionManager.desktop" score="9" last-seen="1771759116"/>
+    <application id="gnome-background-panel.desktop" score="0" last-seen="0"/>
+    <application id="org.gnome.Terminal.desktop" score="6870.5" last-seen="1771760331"/>
+    <application id="Alacritty.desktop" score="9123" last-seen="1771760938"/>
+    <application id="org.tuxpaint.Tuxpaint.desktop" score="26" last-seen="1771673207"/>
+    <application id="app.zen_browser.zen.desktop" score="17210" last-seen="1771760938"/>
+    <application id="org.gnome.tweaks.desktop" score="57" last-seen="1771760963"/>
+    <application id="org.gnome.Shell.Extensions.desktop" score="32" last-seen="1771759112"/>
+    <application id="lstopo.desktop" score="1" last-seen="1771618197"/>
+    <application id="gimp.desktop" score="8" last-seen="1771672525"/>
+    <application id="org.gnome.Settings.desktop" score="17" last-seen="1771760105"/>
   </context>
 </application-state>
