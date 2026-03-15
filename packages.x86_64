@@ -139,6 +139,9 @@ gnome-software
 nautilus
 gnome-menus
 gnome-tweaks
+eog
+gnome-text-editor
+gnome-calculator
 
 networkmanager
 hwinfo
@@ -167,3 +170,7 @@ flatpak
 polkit
 alacritty
 ttf-jetbrains-mono
+vlc
+
+ttf-liberation 
+ttf-fira-code
