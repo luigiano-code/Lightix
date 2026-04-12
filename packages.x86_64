@@ -26,7 +26,6 @@ foot-terminfo
 gpart
 gpm
 gptfdisk
-# grml-zsh-config
 grub
 hdparm
 intel-ucode
@@ -36,7 +35,6 @@ jfsutils
 kitty-terminfo
 ldns
 less
-lftp
 libfido2
 libusb-compat
 linux
@@ -93,17 +91,17 @@ zsh
 base-devel
 plymouth
 
-gdm
-gnome-terminal
-gnome-control-center
-gnome-keyring
-gnome-session
-gnome-settings-daemon
-gnome-shell
-gnome-software
-nautilus
-gnome-menus
-gnome-tweaks
+plasma-desktop
+plasma-nm
+plasma-pa
+sddm
+sddm-kcm
+kscreen
+kde-gtk-config
+dolphin
+kate
+ark
+spectacle
 
 networkmanager
 hwinfo
@@ -128,20 +126,9 @@ firefox
 base-devel
 plymouth
 
-gdm
-gnome-terminal
-gnome-control-center
-gnome-keyring
-gnome-session
-gnome-settings-daemon
-gnome-shell
-gnome-software
-nautilus
-gnome-menus
-gnome-tweaks
-eog
-gnome-text-editor
-gnome-calculator
+plasma-desktop
+plasma-nm
+plasma-pa
 
 networkmanager
 hwinfo
