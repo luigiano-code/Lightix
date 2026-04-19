@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Yavix
+Description=Yavix OS Splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/yavix
+ScriptFile=/usr/share/plymouth/themes/yavix/yavix.script
