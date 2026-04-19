@@ -148,6 +148,15 @@ meson
 libxml2
 extension-manager
 
+hyprland
+swww
+alacritty
+rofi
+waybar
+grim
+network-manager-applet
+blueman
+
 yavix-installer
 yavix-center
 
