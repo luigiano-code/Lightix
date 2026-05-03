@@ -102,6 +102,8 @@ dolphin
 discover
 kate
 ark
+okular
+gwenview
 spectacle
 
 networkmanager
@@ -169,3 +171,6 @@ alacritty
 ttf-jetbrains-mono
 vlc
 
+plank
+xfce4
+xfce4-goodies
