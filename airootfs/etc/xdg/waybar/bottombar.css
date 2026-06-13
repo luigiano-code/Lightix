@@ -5,11 +5,11 @@
 }
 
 window#waybar {
-    background-color: rgba(77, 74, 87, 0.85);
-    border: 3px solid #ffffff;
+    background-color: #000320;
+    border: 4px solid #68f284;
     border-radius: 10px;
-    color: #ffffff;
-    padding: 0 20px;
+    color: #68f284;
+    padding: 0 10px;
     transition-property: background-color;
     transition-duration: .5s;
 }
@@ -103,6 +103,8 @@ button:hover {
 
 #custom-menu {
    font-size: 26px;
+   margin-top: 5px;
+   margin-bottom: 5px;
    padding: 0 15px;
 }
 

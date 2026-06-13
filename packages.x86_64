@@ -114,14 +114,12 @@ adw-gtk-theme
 json-glib
 libadwaita
 libsoup3
-text-engine-git
 blueprint-compiler
 git
 glib2-devel
 gobject-introspection
 meson
 libxml2
-extension-manager
 
 gparted
 firefox
@@ -141,7 +139,6 @@ adw-gtk-theme
 json-glib
 libadwaita
 libsoup3
-text-engine-git
 blueprint-compiler
 git
 glib2-devel
@@ -157,6 +154,7 @@ rofi
 waybar
 grim
 network-manager-applet
+otf-font-awesome
 blueman
 
 yavix-installer
