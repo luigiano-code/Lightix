@@ -1,0 +1,5 @@
+[Theme]
+name=breeze-light
+
+[Wallpapers]
+usersWallpapers=/etc/xdg/hypr/background.jpg
